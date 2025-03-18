@@ -27,6 +27,10 @@
             border-radius: 5px;
             margin: 10px;
         }
+        button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
         section {
             padding: 20px;
             margin: 20px 10%;
@@ -78,7 +82,11 @@
                     web3 = new Web3(window.ethereum);
                     presaleContract = new web3.eth.Contract(PRESALE_ABI, PRESALE_CONTRACT_ADDRESS);
                     tokenContract = new web3.eth.Contract(TOKEN_ABI, TOKEN_CONTRACT_ADDRESS);
-                    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    
+                    const chainId = await web3.eth.getChainId();
+                    if (chainId !== 1) throw new Error("Please switch to Ethereum Mainnet (Chain ID 1) in MetaMask!");
+                    
+                    const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
                     userAccount = accounts[0];
                     document.getElementById('walletAddress').innerText = `Connected: ${userAccount}`;
                     document.getElementById('connectWallet').innerText = "Wallet Connected";
