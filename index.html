@@ -52,7 +52,6 @@
         <h1>🚀 Web3 Chain Labs</h1>
         <p>AI-Powered Crypto Strategies & Web3 Innovation</p>
         <button id="connectWallet" onclick="connectWallet()">Connect Wallet</button>
-        <button id="checkBalance" onclick="getTokenBalance()" disabled>Check $W3LABS Balance</button>
         <p id="walletAddress"></p>
     </header>
 
@@ -66,33 +65,22 @@
 
     <script>
         const PRESALE_CONTRACT_ADDRESS = "0x7e3Ec9F4b530b1BB6143EE3D4B6d218610D3F76D";
-        const TOKEN_CONTRACT_ADDRESS = "0x00Ae43d74aD13b675a50aB10393eeE9300F3bCf1";
         const PRESALE_ABI = [
             {"constant": false, "inputs": [], "name": "buyTokens", "outputs": [], "payable": true, "stateMutability": "payable", "type": "function"}
         ];
-        const TOKEN_ABI = [
-            {"constant": true, "inputs": [{"name": "owner", "type": "address"}], "name": "balanceOf", "outputs": [{"name": "balance", "type": "uint256"}], "type": "function"}
-        ];
 
-        let web3, presaleContract, tokenContract, userAccount;
+        let web3, presaleContract, userAccount;
 
         async function connectWallet() {
             if (window.ethereum) {
                 try {
-                    if (typeof Web3 === 'undefined') throw new Error("Web3 library not loaded!");
                     web3 = new Web3(window.ethereum);
                     presaleContract = new web3.eth.Contract(PRESALE_ABI, PRESALE_CONTRACT_ADDRESS);
-                    tokenContract = new web3.eth.Contract(TOKEN_ABI, TOKEN_CONTRACT_ADDRESS);
-                    
-                    const chainId = await web3.eth.getChainId();
-                    if (chainId !== 1) throw new Error("Please switch to Ethereum Mainnet (Chain ID 1)!");
-                    
                     const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
                     userAccount = accounts[0];
                     document.getElementById('walletAddress').innerText = `Connected: ${userAccount}`;
                     document.getElementById('connectWallet').innerText = "Wallet Connected";
                     document.getElementById('connectWallet').disabled = true;
-                    document.getElementById('checkBalance').disabled = false;
                     document.getElementById('ethAmount').disabled = false;
                     document.getElementById('buyTokens').disabled = false;
                     document.getElementById('transactionStatus').innerText = "Connected!";
@@ -101,18 +89,6 @@
                 }
             } else {
                 document.getElementById('transactionStatus').innerText = "Please install MetaMask!";
-            }
-        }
-
-        async function getTokenBalance() {
-            try {
-                document.getElementById('transactionStatus').innerText = "Checking balance...";
-                const balance = await tokenContract.methods.balanceOf(userAccount).call();
-                const balanceInTokens = web3.utils.fromWei(balance, 'ether');
-                alert(`Your $W3LABS Balance: ${balanceInTokens} W3LABS`);
-                document.getElementById('transactionStatus').innerText = "Balance: " + balanceInTokens + " W3LABS";
-            } catch (error) {
-                document.getElementById('transactionStatus').innerText = "Balance error: " + error.message;
             }
         }
 
@@ -126,7 +102,7 @@
                 });
                 document.getElementById('transactionStatus').innerText = "Transaction sent!";
             } catch (error) {
-                document.getElementById('transactionStatus').innerText = "Buy error: " + error.message;
+                document.getElementById('transactionStatus').innerText = "Buy failed: " + error.message;
             }
         }
     </script>
