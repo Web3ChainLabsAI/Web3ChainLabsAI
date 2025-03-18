@@ -88,23 +88,31 @@
         async function buyTokens(ethAmount) {
             try {
                 document.getElementById('transactionStatus').innerText = "Sending to MetaMask...";
+                console.log("Starting transaction...");
                 const ethWei = web3.utils.toWei(ethAmount.toString(), 'ether');
+                console.log("ETH Wei value:", ethWei);
                 const tx = presaleContract.methods.buyTokens().send({
                     from: userAccount,
                     value: ethWei
-                })
-                .on('transactionHash', (hash) => {
+                });
+                console.log("Transaction sent, awaiting MetaMask...");
+                tx.on('transactionHash', (hash) => {
+                    console.log("Transaction hash received:", hash);
                     document.getElementById('transactionStatus').innerText = "Transaction hash: " + hash;
                 })
                 .on('confirmation', (confirmationNumber, receipt) => {
+                    console.log("Transaction confirmed:", confirmationNumber);
                     document.getElementById('transactionStatus').innerText = "Transaction confirmed!";
                 })
                 .on('error', (error) => {
+                    console.log("Transaction error:", error.message);
                     document.getElementById('transactionStatus').innerText = "Buy failed: " + error.message;
                 });
                 await tx;
+                console.log("Transaction completed!");
                 document.getElementById('transactionStatus').innerText = "Transaction sent!";
             } catch (error) {
+                console.log("Catch block error:", error.message);
                 document.getElementById('transactionStatus').innerText = "Buy failed: " + error.message;
             }
         }
