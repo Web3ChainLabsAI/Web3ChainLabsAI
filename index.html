@@ -27,10 +27,6 @@
             border-radius: 5px;
             margin: 10px;
         }
-        button:disabled {
-            background: #cccccc;
-            cursor: not-allowed;
-        }
         section {
             padding: 20px;
             margin: 20px 10%;
@@ -58,8 +54,8 @@
     <section id="buy-token">
         <h2>💰 Buy $W3LABS Token</h2>
         <p>Join the future of AI-powered crypto trading. Get your $W3LABS tokens now.</p>
-        <input type="number" id="ethAmount" step="0.01" min="0.01" value="0.1" disabled>
-        <button id="buyTokens" onclick="buyTokens(document.getElementById('ethAmount').value)" disabled>Buy $W3LABS</button>
+        <input type="number" id="ethAmount" step="0.01" min="0.01" value="0.1">
+        <button id="buyTokens" onclick="buyTokens(document.getElementById('ethAmount').value)">Buy $W3LABS</button>
         <p id="transactionStatus"></p>
     </section>
 
@@ -73,20 +69,13 @@
 
         async function connectWallet() {
             if (window.ethereum) {
-                try {
-                    web3 = new Web3(window.ethereum);
-                    presaleContract = new web3.eth.Contract(PRESALE_ABI, PRESALE_CONTRACT_ADDRESS);
-                    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                    userAccount = accounts[0];
-                    document.getElementById('walletAddress').innerText = `Connected: ${userAccount}`;
-                    document.getElementById('connectWallet').innerText = "Wallet Connected";
-                    document.getElementById('connectWallet').disabled = true;
-                    document.getElementById('ethAmount').disabled = false;
-                    document.getElementById('buyTokens').disabled = false;
-                    document.getElementById('transactionStatus').innerText = "Connected!";
-                } catch (error) {
-                    document.getElementById('transactionStatus').innerText = "Failed: " + error.message;
-                }
+                web3 = new Web3(window.ethereum);
+                presaleContract = new web3.eth.Contract(PRESALE_ABI, PRESALE_CONTRACT_ADDRESS);
+                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                userAccount = accounts[0];
+                document.getElementById('walletAddress').innerText = `Connected: ${userAccount}`;
+                document.getElementById('connectWallet').innerText = "Wallet Connected";
+                document.getElementById('transactionStatus').innerText = "Connected!";
             } else {
                 document.getElementById('transactionStatus').innerText = "Please install MetaMask!";
             }
