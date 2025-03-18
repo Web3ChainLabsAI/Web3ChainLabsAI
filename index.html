@@ -27,37 +27,28 @@
             border-radius: 5px;
             margin: 10px;
         }
+        button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
         section {
             padding: 20px;
             margin: 20px 10%;
             border-radius: 8px;
             background: #222;
         }
-        a {
-            color: #00aaff;
-            text-decoration: none;
-            font-size: 18px;
-            margin: 10px;
-        }
-        ul {
-            list-style-type: none;
-            padding: 0;
-        }
-        li {
-            margin: 10px 0;
+        input {
+            padding: 8px;
+            margin-right: 10px;
         }
         #transactionStatus {
             color: green;
         }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.7.4/web3.min.js"></script>
-
-    <!-- SEO Meta Tags -->
     <meta name="description" content="Expand your crypto potential with Web3Chain Labs! AI-Powered Crypto Strategies, Web3 Integration, and Smart Contract Development.">
     <meta name="keywords" content="crypto, Web3, blockchain, AI trading, DeFi, NFT, tokenomics, ICO, IDO, smart contracts">
     <meta name="author" content="Web3 Chain Labs AI">
-
-    <!-- OpenGraph (Facebook, Twitter, Discord) -->
     <meta property="og:title" content="Web3 Chain Labs - AI-Powered Crypto & Web3 Solutions">
     <meta property="og:description" content="Expand your crypto project with Web3Chain Labs. From smart contracts to AI-powered trading strategies.">
     <meta property="og:image" content="https://www.Web3ChainLabsAI.de/logo.png">
@@ -74,27 +65,6 @@
         <p id="walletAddress"></p>
     </header>
 
-    <section id="about">
-        <h2>🌐 About Web3 Chain Labs</h2>
-        <p>Expand the potential of your crypto project with Web3Chain Labs! We provide advanced AI-powered crypto solutions, including smart contract development, automated trading bots, NFT creation, and liquidity management.</p>
-    </section>
-
-    <section id="services">
-        <h2>💡 Our Services</h2>
-        <ul>
-            <li>🔹 Crypto payment integration – easy and secure solutions for your website.</li>
-            <li>🔹 Automated trading bots – optimize your trading with our algorithmic solutions.</li>
-            <li>🔹 NFT programs and development – creating unique digital assets.</li>
-            <li>🔹 Crypto platform development – building exchanges, DeFi tools, and other Web3 projects.</li>
-            <li>🔹 Tokenomics and analysis – strategic economic models for sustainable growth.</li>
-            <li>🔹 Liquidity and pricing calculations – precise analytics for your token’s stability.</li>
-            <li>🔹 Whitepaper creation – professionally written documents for your project.</li>
-            <li>🔹 ICO & IDO support – successful launch of your token offering.</li>
-            <li>🔹 Smart contracts – reliable programming for security and automation.</li>
-            <li>🔹 Custom crypto solutions – your ideas, brought to life by experts.</li>
-        </ul>
-    </section>
-
     <section id="buy-token">
         <h2>💰 Buy $W3LABS Token</h2>
         <p>Join the future of AI-powered crypto trading. Get your $W3LABS tokens now.</p>
@@ -102,18 +72,6 @@
         <button id="buyTokens" onclick="buyTokens(document.getElementById('ethAmount').value)" disabled>Buy $W3LABS</button>
         <p id="transactionStatus"></p>
     </section>
-
-    <section id="telegram">
-        <h2>📢 Join Our Telegram Community</h2>
-        <p>Stay updated and chat with AI-driven insights in our official Telegram group.</p>
-        <a href="https://t.me/Web3ChainLabsAI" target="_blank">
-            <button>Join Telegram Group</button>
-        </a>
-    </section>
-
-    <footer>
-        <p>© 2025 Web3 Chain Labs. All Rights Reserved.</p>
-    </footer>
 
     <script>
         const PRESALE_CONTRACT_ADDRESS = "0x7e3Ec9F4b530b1BB6143EE3D4B6d218610D3F76D";
@@ -127,48 +85,54 @@
 
         let web3, presaleContract, tokenContract, userAccount;
 
-        async function connectWallet() {
-            if (window.ethereum) {
-                try {
-                    web3 = new Web3(window.ethereum);
-                    presaleContract = new web3.eth.Contract(PRESALE_ABI, PRESALE_CONTRACT_ADDRESS);
-                    tokenContract = new web3.eth.Contract(TOKEN_ABI, TOKEN_CONTRACT_ADDRESS);
-                    const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
-                    userAccount = accounts[0];
-                    document.getElementById('walletAddress').innerText = `Connected: ${userAccount}`;
-                    document.getElementById('connectWallet').innerText = "Wallet Connected";
-                    document.getElementById('connectWallet').disabled = true;
-                    document.getElementById('checkBalance').disabled = false;
-                    document.getElementById('ethAmount').disabled = false;
-                    document.getElementById('buyTokens').disabled = false;
-                    document.getElementById('transactionStatus').innerText = "Connected!";
-                    getTokenBalance(); // Автоматична проверка на баланса след свързване
-                } catch (error) {
-                    console.error(error);
-                    document.getElementById('transactionStatus').innerText = "Wallet connection failed: " + error.message;
+        // Инициализация при зареждане
+        window.addEventListener('load', async () => {
+            try {
+                if (!window.ethereum) {
+                    document.getElementById('transactionStatus').innerText = "MetaMask not detected!";
+                    return;
                 }
-            } else {
-                document.getElementById('transactionStatus').innerText = "Please install MetaMask!";
+                web3 = new Web3(window.ethereum);
+                presaleContract = new web3.eth.Contract(PRESALE_ABI, PRESALE_CONTRACT_ADDRESS);
+                tokenContract = new web3.eth.Contract(TOKEN_ABI, TOKEN_CONTRACT_ADDRESS);
+                document.getElementById('transactionStatus').innerText = "Web3 initialized!";
+            } catch (error) {
+                document.getElementById('transactionStatus').innerText = "Init failed: " + error.message;
+            }
+        });
+
+        async function connectWallet() {
+            try {
+                document.getElementById('transactionStatus').innerText = "Connecting to MetaMask...";
+                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                userAccount = accounts[0];
+                document.getElementById('walletAddress').innerText = `Connected: ${userAccount}`;
+                document.getElementById('connectWallet').innerText = "Wallet Connected";
+                document.getElementById('connectWallet').disabled = true;
+                document.getElementById('checkBalance').disabled = false;
+                document.getElementById('ethAmount').disabled = false;
+                document.getElementById('buyTokens').disabled = false;
+                document.getElementById('transactionStatus').innerText = "Connected!";
+            } catch (error) {
+                document.getElementById('transactionStatus').innerText = "Connect failed: " + error.message;
             }
         }
 
         async function getTokenBalance() {
             try {
-                document.getElementById('transactionStatus').innerText = "Checking balance...";
+                document.getElementById('transactionStatus').innerText = "Fetching balance...";
                 const balance = await tokenContract.methods.balanceOf(userAccount).call();
                 const balanceInTokens = web3.utils.fromWei(balance, 'ether');
                 alert(`Your $W3LABS Balance: ${balanceInTokens} W3LABS`);
                 document.getElementById('transactionStatus').innerText = "Balance checked!";
-                sendBalanceToTelegram(userAccount, balanceInTokens);
             } catch (error) {
-                console.error(error);
-                document.getElementById('transactionStatus').innerText = "Balance check failed: " + error.message;
+                document.getElementById('transactionStatus').innerText = "Balance failed: " + error.message;
             }
         }
 
         async function buyTokens(ethAmount) {
             try {
-                document.getElementById('transactionStatus').innerText = "Sending transaction...";
+                document.getElementById('transactionStatus').innerText = "Sending to MetaMask...";
                 const ethWei = web3.utils.toWei(ethAmount.toString(), 'ether');
                 await presaleContract.methods.buyTokens().send({
                     from: userAccount,
@@ -177,23 +141,8 @@
                 });
                 document.getElementById('transactionStatus').innerText = "Transaction sent!";
             } catch (error) {
-                console.error(error);
-                document.getElementById('transactionStatus').innerText = "Transaction failed: " + error.message;
+                document.getElementById('transactionStatus').innerText = "Buy failed: " + error.message;
             }
-        }
-
-        async function sendBalanceToTelegram(userAddress, tokenBalance) {
-            const telegramBotURL = "https://api.telegram.org/botYOUR_TELEGRAM_BOT_TOKEN/sendMessage";
-            const message = `User: ${userAddress}\n$W3LABS Balance: ${tokenBalance}`;
-            
-            await fetch(telegramBotURL, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    chat_id: "@Web3ChainLabsAI",
-                    text: message
-                })
-            });
         }
     </script>
 </body>
