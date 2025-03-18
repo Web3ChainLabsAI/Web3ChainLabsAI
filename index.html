@@ -27,10 +27,6 @@
             border-radius: 5px;
             margin: 10px;
         }
-        button:disabled {
-            background: #cccccc;
-            cursor: not-allowed;
-        }
         section {
             padding: 20px;
             margin: 20px 10%;
@@ -76,66 +72,52 @@
 
         let web3, presaleContract, tokenContract, userAccount;
 
-        // Инициализация при зареждане
-        window.addEventListener('load', async () => {
-            try {
-                if (!window.ethereum) throw new Error("MetaMask not detected!");
-                web3 = new Web3(window.ethereum);
-                presaleContract = new web3.eth.Contract(PRESALE_ABI, PRESALE_CONTRACT_ADDRESS);
-                tokenContract = new web3.eth.Contract(TOKEN_ABI, TOKEN_CONTRACT_ADDRESS);
-                document.getElementById('transactionStatus').innerText = "Web3 ready!";
-            } catch (error) {
-                document.getElementById('transactionStatus').innerText = "Initialization failed: " + error.message;
-            }
-        });
-
         async function connectWallet() {
-            try {
-                document.getElementById('transactionStatus').innerText = "Connecting to MetaMask...";
-                if (!web3) throw new Error("Web3 not initialized!");
-                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                userAccount = accounts[0];
-                document.getElementById('walletAddress').innerText = `Connected: ${userAccount}`;
-                document.getElementById('connectWallet').innerText = "Wallet Connected";
-                document.getElementById('connectWallet').disabled = true;
-                document.getElementById('checkBalance').disabled = false;
-                document.getElementById('ethAmount').disabled = false;
-                document.getElementById('buyTokens').disabled = false;
-                document.getElementById('transactionStatus').innerText = "Connected successfully!";
-            } catch (error) {
-                document.getElementById('transactionStatus').innerText = "Connection failed: " + error.message;
+            if (window.ethereum) {
+                try {
+                    web3 = new Web3(window.ethereum);
+                    presaleContract = new web3.eth.Contract(PRESALE_ABI, PRESALE_CONTRACT_ADDRESS);
+                    tokenContract = new web3.eth.Contract(TOKEN_ABI, TOKEN_CONTRACT_ADDRESS);
+                    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    userAccount = accounts[0];
+                    document.getElementById('walletAddress').innerText = `Connected: ${userAccount}`;
+                    document.getElementById('connectWallet').innerText = "Wallet Connected";
+                    document.getElementById('connectWallet').disabled = true;
+                    document.getElementById('checkBalance').disabled = false;
+                    document.getElementById('ethAmount').disabled = false;
+                    document.getElementById('buyTokens').disabled = false;
+                    document.getElementById('transactionStatus').innerText = "Connected!";
+                } catch (error) {
+                    document.getElementById('transactionStatus').innerText = "Failed: " + error.message;
+                }
+            } else {
+                document.getElementById('transactionStatus').innerText = "Please install MetaMask!";
             }
         }
 
         async function getTokenBalance() {
             try {
-                document.getElementById('transactionStatus').innerText = "Fetching balance...";
-                if (!userAccount) throw new Error("No wallet connected!");
-                if (!tokenContract) throw new Error("Token contract not initialized!");
+                document.getElementById('transactionStatus').innerText = "Checking balance...";
                 const balance = await tokenContract.methods.balanceOf(userAccount).call();
                 const balanceInTokens = web3.utils.fromWei(balance, 'ether');
                 alert(`Your $W3LABS Balance: ${balanceInTokens} W3LABS`);
-                document.getElementById('transactionStatus').innerText = "Balance checked: " + balanceInTokens + " W3LABS";
+                document.getElementById('transactionStatus').innerText = "Balance: " + balanceInTokens + " W3LABS";
             } catch (error) {
-                document.getElementById('transactionStatus').innerText = "Balance check failed: " + error.message;
+                document.getElementById('transactionStatus').innerText = "Balance error: " + error.message;
             }
         }
 
         async function buyTokens(ethAmount) {
             try {
-                document.getElementById('transactionStatus').innerText = "Preparing transaction...";
-                if (!userAccount) throw new Error("No wallet connected!");
-                if (!presaleContract) throw new Error("Presale contract not initialized!");
-                const ethWei = web3.utils.toWei(ethAmount.toString(), 'ether');
                 document.getElementById('transactionStatus').innerText = "Sending to MetaMask...";
+                const ethWei = web3.utils.toWei(ethAmount.toString(), 'ether');
                 await presaleContract.methods.buyTokens().send({
                     from: userAccount,
-                    value: ethWei,
-                    gas: 300000
+                    value: ethWei
                 });
-                document.getElementById('transactionStatus').innerText = "Transaction sent successfully!";
+                document.getElementById('transactionStatus').innerText = "Transaction sent!";
             } catch (error) {
-                document.getElementById('transactionStatus').innerText = "Transaction failed: " + error.message;
+                document.getElementById('transactionStatus').innerText = "Buy error: " + error.message;
             }
         }
     </script>
