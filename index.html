@@ -88,31 +88,17 @@
         async function buyTokens(ethAmount) {
             try {
                 document.getElementById('transactionStatus').innerText = "Sending to MetaMask...";
-                console.log("Starting transaction...");
+                console.log("Starting transaction with amount:", ethAmount);
                 const ethWei = web3.utils.toWei(ethAmount.toString(), 'ether');
-                console.log("ETH Wei value:", ethWei);
-                const tx = presaleContract.methods.buyTokens().send({
+                console.log("Converted to Wei:", ethWei);
+                const tx = await presaleContract.methods.buyTokens().send({
                     from: userAccount,
                     value: ethWei
                 });
-                console.log("Transaction sent, awaiting MetaMask...");
-                tx.on('transactionHash', (hash) => {
-                    console.log("Transaction hash received:", hash);
-                    document.getElementById('transactionStatus').innerText = "Transaction hash: " + hash;
-                })
-                .on('confirmation', (confirmationNumber, receipt) => {
-                    console.log("Transaction confirmed:", confirmationNumber);
-                    document.getElementById('transactionStatus').innerText = "Transaction confirmed!";
-                })
-                .on('error', (error) => {
-                    console.log("Transaction error:", error.message);
-                    document.getElementById('transactionStatus').innerText = "Buy failed: " + error.message;
-                });
-                await tx;
-                console.log("Transaction completed!");
-                document.getElementById('transactionStatus').innerText = "Transaction sent!";
+                console.log("Transaction result:", tx);
+                document.getElementById('transactionStatus').innerText = "Transaction sent: " + tx.transactionHash;
             } catch (error) {
-                console.log("Catch block error:", error.message);
+                console.log("Error:", error.message);
                 document.getElementById('transactionStatus').innerText = "Buy failed: " + error.message;
             }
         }
