@@ -10,6 +10,16 @@ const preSaleABI = [
         "payable": true,
         "stateMutability": "payable",
         "type": "function"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {"indexed": true, "internalType": "address", "name": "buyer", "type": "address"},
+            {"indexed": false, "internalType": "uint256", "name": "amountETH", "type": "uint256"},
+            {"indexed": false, "internalType": "uint256", "name": "tokensReceived", "type": "uint256"}
+        ],
+        "name": "TokensPurchased",
+        "type": "event"
     }
 ];
 
@@ -32,9 +42,9 @@ async function connectWallet() {
     try {
         const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
         const chainId = await ethereum.request({ method: 'eth_chainId' });
-        const expectedChainId = "0x1"; // Mainnet, сменете с вашата мрежа (напр. 0xaa36a7 за Sepolia)
+        const expectedChainId = "0x1"; // Ethereum Mainnet
         if (chainId !== expectedChainId) {
-            alert(`Please switch to the correct network (Chain ID: ${parseInt(expectedChainId, 16)})`);
+            alert("Please switch to Ethereum Mainnet (Chain ID: 1)");
             return;
         }
         document.getElementById('walletAddress').innerText = `Connected: ${accounts[0]}`;
@@ -71,14 +81,18 @@ async function buyTokens(ethAmount) {
 
     // Проверка на мрежата
     const chainId = await ethereum.request({ method: 'eth_chainId' });
-    const expectedChainId = "0x1"; // Mainnet, сменете с вашата мрежа
-    if (chainId !== expectedChainId) {
-        alert(`Please switch to the correct network (Chain ID: ${parseInt(expectedChainId, 16)})`);
+    if (chainId !== "0x1") {
+        alert("Please switch to Ethereum Mainnet (Chain ID: 1)");
         return;
     }
 
     try {
         const ethWei = web3.utils.toWei(ethAmount, 'ether');
+        if (parseFloat(ethAmount) > 5) {
+            alert("Maximum purchase is 5 ETH!");
+            return;
+        }
+
         console.log(`Sending ${ethAmount} ETH to ${preSaleContractAddress}`);
 
         // Проверка на баланса преди покупка
@@ -90,7 +104,7 @@ async function buyTokens(ethAmount) {
         const tx = await preSaleContract.methods.buyTokens().send({
             from: accounts[0],
             value: ethWei,
-            gas: 200000 // Лимит на газа
+            gas: 200000 // Достатъчно газ за транзакцията
         });
         alert(`✅ Transaction successful! Tx Hash: ${tx.transactionHash}`);
 
