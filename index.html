@@ -45,7 +45,7 @@
             color: green;
         }
     </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.10.0/web3.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.2.1/web3.min.js"></script>
 </head>
 <body>
     <header>
@@ -82,10 +82,6 @@
                     web3 = new Web3(window.ethereum);
                     presaleContract = new web3.eth.Contract(PRESALE_ABI, PRESALE_CONTRACT_ADDRESS);
                     tokenContract = new web3.eth.Contract(TOKEN_ABI, TOKEN_CONTRACT_ADDRESS);
-                    
-                    const chainId = await web3.eth.getChainId();
-                    if (chainId !== 1) throw new Error("Please switch to Ethereum Mainnet (Chain ID 1) in MetaMask!");
-                    
                     const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
                     userAccount = accounts[0];
                     document.getElementById('walletAddress').innerText = `Connected: ${userAccount}`;
