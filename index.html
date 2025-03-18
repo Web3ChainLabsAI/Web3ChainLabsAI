@@ -69,13 +69,17 @@
 
         async function connectWallet() {
             if (window.ethereum) {
-                web3 = new Web3(window.ethereum);
-                presaleContract = new web3.eth.Contract(PRESALE_ABI, PRESALE_CONTRACT_ADDRESS);
-                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                userAccount = accounts[0];
-                document.getElementById('walletAddress').innerText = `Connected: ${userAccount}`;
-                document.getElementById('connectWallet').innerText = "Wallet Connected";
-                document.getElementById('transactionStatus').innerText = "Connected!";
+                try {
+                    web3 = new Web3(window.ethereum);
+                    presaleContract = new web3.eth.Contract(PRESALE_ABI, PRESALE_CONTRACT_ADDRESS);
+                    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    userAccount = accounts[0];
+                    document.getElementById('walletAddress').innerText = `Connected: ${userAccount}`;
+                    document.getElementById('connectWallet').innerText = "Wallet Connected";
+                    document.getElementById('transactionStatus').innerText = "Connected!";
+                } catch (error) {
+                    document.getElementById('transactionStatus').innerText = "Failed: " + error.message;
+                }
             } else {
                 document.getElementById('transactionStatus').innerText = "Please install MetaMask!";
             }
@@ -85,10 +89,20 @@
             try {
                 document.getElementById('transactionStatus').innerText = "Sending to MetaMask...";
                 const ethWei = web3.utils.toWei(ethAmount.toString(), 'ether');
-                await presaleContract.methods.buyTokens().send({
+                const tx = presaleContract.methods.buyTokens().send({
                     from: userAccount,
                     value: ethWei
+                })
+                .on('transactionHash', (hash) => {
+                    document.getElementById('transactionStatus').innerText = "Transaction hash: " + hash;
+                })
+                .on('confirmation', (confirmationNumber, receipt) => {
+                    document.getElementById('transactionStatus').innerText = "Transaction confirmed!";
+                })
+                .on('error', (error) => {
+                    document.getElementById('transactionStatus').innerText = "Buy failed: " + error.message;
                 });
+                await tx;
                 document.getElementById('transactionStatus').innerText = "Transaction sent!";
             } catch (error) {
                 document.getElementById('transactionStatus').innerText = "Buy failed: " + error.message;
