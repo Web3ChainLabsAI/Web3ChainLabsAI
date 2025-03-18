@@ -1,4 +1,4 @@
-const tokenAddress = "0xYOUR_TOKEN_ADDRESS";  // Трябва да се замени с реалния адрес след деплой
+const tokenAddress = "0x00Ae43d74aD13b675a50aB10393eeE9300F3bCf1";  // Трябва да се замени с реалния адрес след деплой
 const tokenABI = [
     {
         "constant": true,
