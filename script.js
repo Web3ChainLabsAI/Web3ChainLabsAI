@@ -1,10 +1,24 @@
-const tokenAddress = "0x00Ae43d74aD13b675a50aB10393eeE9300F3bCf1";  // Трябва да се замени с реалния адрес след деплой
+const tokenAddress = "0x00Ae43d74aD13b675a50aB10393eeE9300F3bCf1";  // Адрес на токена
+const preSaleContractAddress = "0x7e3Ec9F4b530b1BB6143EE3D4B6d218610D3F76D";  // Адрес на PreSale контракта (сменете с реалния)
+
 const tokenABI = [
     {
         "constant": true,
         "inputs": [{"name": "owner", "type": "address"}],
         "name": "balanceOf",
         "outputs": [{"name": "balance", "type": "uint256"}],
+        "type": "function"
+    }
+];
+
+const preSaleABI = [
+    {
+        "constant": false,
+        "inputs": [],
+        "name": "buyTokens",
+        "outputs": [],
+        "payable": true,
+        "stateMutability": "payable",
         "type": "function"
     }
 ];
@@ -31,9 +45,30 @@ async function checkTokenBalance(userAddress) {
     const tokenBalance = web3.utils.fromWei(balance, 'ether');
 
     alert(`Your $W3LABS Balance: ${tokenBalance} tokens`);
-
-    // Изпращаме данните към Telegram бота
     sendBalanceToTelegram(userAddress, tokenBalance);
+}
+
+async function buyTokens(ethAmount) {
+    if (!window.ethereum) {
+        alert("Please install MetaMask!");
+        return;
+    }
+
+    const web3 = new Web3(window.ethereum);
+    const contract = new web3.eth.Contract(preSaleABI, preSaleContractAddress);
+    const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+
+    try {
+        const ethWei = web3.utils.toWei(ethAmount, 'ether');
+        await contract.methods.buyTokens().send({
+            from: accounts[0],
+            value: ethWei
+        });
+
+        alert("✅ Transaction successful! Check your wallet for tokens.");
+    } catch (error) {
+        alert("❌ Transaction failed: " + error.message);
+    }
 }
 
 async function sendBalanceToTelegram(userAddress, tokenBalance) {
