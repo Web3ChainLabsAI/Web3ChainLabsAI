@@ -3,54 +3,106 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Web3 Chain Labs AI</title>
-    <link rel="stylesheet" href="styles.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.7.4/web3.min.js"></script>
-
-    <!-- SEO Meta Tags -->
-    <meta name="description" content="Web3 Chain Labs AI - AI-Powered Crypto Trading & Web3 Solutions.">
-    <meta name="keywords" content="crypto, Web3, blockchain, AI trading, DeFi, NFT, Web3ChainLabsAI">
-    <meta name="author" content="Web3 Chain Labs AI">
-
-    <!-- OpenGraph (Facebook, Twitter, Discord) -->
-    <meta property="og:title" content="Web3 Chain Labs AI">
-    <meta property="og:description" content="Harness the power of AI and Web3 to optimize your crypto strategies.">
-    <meta property="og:image" content="https://www.Web3ChainLabsAI.de/logo.png">
-    <meta property="og:url" content="https://www.Web3ChainLabsAI.de">
-    <meta property="og:type" content="website">
+    <title>Web3 Chain Labs Test</title>
+    <style>
+        body {
+            text-align: center;
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        input {
+            padding: 8px;
+            margin-right: 10px;
+        }
+        #transactionStatus {
+            color: green;
+        }
+    </style>
 </head>
 <body>
-    <header>
-        <h1>Web3 Chain Labs AI</h1>
-        <p>🚀 This project is currently under development. The official launch date will be announced soon!</p>
-        <button id="connectWallet" onclick="connectWallet()">Connect Wallet</button>
-        <button id="checkBalance" onclick="getTokenBalance()">Check $W3LABS Balance</button>
-        <p id="walletAddress"></p>
-    </header>
+    <h1>🚀 Web3 Chain Labs</h1>
+    <p>AI-Powered Crypto Strategies & Web3 Innovation</p>
+    <button id="connectWallet" onclick="connectWallet()">Connect Wallet</button>
+    <button id="checkBalance" onclick="getTokenBalance()" disabled>Check $W3LABS Balance</button>
+    <p id="walletAddress"></p>
+    <h2>💰 Buy $W3LABS Token</h2>
+    <p>Join the future of AI-powered crypto trading. Get your $W3LABS tokens now.</p>
+    <input type="number" id="ethAmount" step="0.01" min="0.01" value="0.1" disabled>
+    <button id="buyTokens" onclick="buyTokens(document.getElementById('ethAmount').value)" disabled>Buy $W3LABS</button>
+    <p id="transactionStatus"></p>
 
-    <section id="about">
-        <h2>About Web3 Chain Labs AI</h2>
-        <p>Web3 Chain Labs AI is a cutting-edge platform that leverages Artificial Intelligence to provide deep insights into crypto trading, automated financial strategies, and seamless Web3 integration. Our mission is to revolutionize decentralized finance (DeFi) with AI-driven analytics and smart trading bots.</p>
-    </section>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.7.4/web3.min.js"></script>
+    <script>
+        const PRESALE_CONTRACT_ADDRESS = "0x7e3Ec9F4b530b1BB6143EE3D4B6d218610D3F76D";
+        const TOKEN_CONTRACT_ADDRESS = "0x00Ae43d74aD13b675a50aB10393eeE9300F3bCf1";
+        const PRESALE_ABI = [
+            {"constant": false, "inputs": [], "name": "buyTokens", "outputs": [], "payable": true, "stateMutability": "payable", "type": "function"}
+        ];
+        const TOKEN_ABI = [
+            {"constant": true, "inputs": [{"name": "owner", "type": "address"}], "name": "balanceOf", "outputs": [{"name": "balance", "type": "uint256"}], "type": "function"}
+        ];
 
-    <section id="buy-token">
-        <h2>Buy $W3LABS Token</h2>
-        <p>Join the future of AI-powered crypto trading. Get your $W3LABS tokens now.</p>
-        <button onclick="buyTokens('0.1')">Buy $W3LABS (0.1 ETH)</button>
-    </section>
+        let web3, presaleContract, tokenContract, userAccount;
 
-    <section id="telegram">
-        <h2>Join Our Telegram Community</h2>
-        <p>Stay updated and chat with AI-driven insights in our official Telegram group.</p>
-        <a href="https://t.me/Web3ChainLabsAI" target="_blank">
-            <button>Join Telegram Group</button>
-        </a>
-    </section>
+        async function connectWallet() {
+            if (window.ethereum) {
+                try {
+                    web3 = new Web3(window.ethereum);
+                    presaleContract = new web3.eth.Contract(PRESALE_ABI, PRESALE_CONTRACT_ADDRESS);
+                    tokenContract = new web3.eth.Contract(TOKEN_ABI, TOKEN_CONTRACT_ADDRESS);
+                    const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+                    userAccount = accounts[0];
+                    document.getElementById('walletAddress').innerText = `Connected: ${userAccount}`;
+                    document.getElementById('connectWallet').innerText = "Wallet Connected";
+                    document.getElementById('connectWallet').disabled = true;
+                    document.getElementById('checkBalance').disabled = false;
+                    document.getElementById('ethAmount').disabled = false;
+                    document.getElementById('buyTokens').disabled = false;
+                    document.getElementById('transactionStatus').innerText = "Connected!";
+                } catch (error) {
+                    document.getElementById('transactionStatus').innerText = "Connect failed: " + error.message;
+                }
+            } else {
+                document.getElementById('transactionStatus').innerText = "Please install MetaMask!";
+            }
+        }
 
-    <footer>
-        <p>&copy; 2025 Web3 Chain Labs AI. All Rights Reserved.</p>
-    </footer>
+        async function getTokenBalance() {
+            try {
+                const balance = await tokenContract.methods.balanceOf(userAccount).call();
+                const balanceInTokens = web3.utils.fromWei(balance, 'ether');
+                alert(`Your $W3LABS balance: ${balanceInTokens} W3LABS`);
+                document.getElementById('transactionStatus').innerText = "Balance checked!";
+            } catch (error) {
+                document.getElementById('transactionStatus').innerText = "Balance failed: " + error.message;
+            }
+        }
 
-    <script src="script.js"></script>
+        async function buyTokens(ethAmount) {
+            try {
+                const ethWei = web3.utils.toWei(ethAmount.toString(), 'ether');
+                await presaleContract.methods.buyTokens().send({
+                    from: userAccount,
+                    value: ethWei,
+                    gas: 300000
+                });
+                document.getElementById('transactionStatus').innerText = "Transaction sent!";
+            } catch (error) {
+                document.getElementById('transactionStatus').innerText = "Buy failed: " + error.message;
+            }
+        }
+    </script>
 </body>
 </html>
