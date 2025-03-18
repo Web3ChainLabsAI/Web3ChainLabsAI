@@ -5,102 +5,68 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Web3 Chain Labs</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 0;
-            padding: 0;
-            background-color: #121212;
-            color: white;
-        }
-        header {
-            padding: 20px;
-            background: #1e1e1e;
-        }
-        button {
-            padding: 10px 20px;
-            background: #00aaff;
-            border: none;
-            color: white;
-            font-size: 16px;
-            cursor: pointer;
-            border-radius: 5px;
-            margin: 10px;
-        }
-        section {
-            padding: 20px;
-            margin: 20px 10%;
-            border-radius: 8px;
-            background: #222;
-        }
-        input {
-            padding: 8px;
-            margin-right: 10px;
-        }
-        #transactionStatus {
-            color: green;
-        }
+        body { font-family: Arial, sans-serif; text-align: center; margin: 0; padding: 0; background-color: #121212; color: white; }
+        header { padding: 20px; background: #1e1e1e; }
+        button { padding: 10px 20px; background: #00aaff; border: none; color: white; font-size: 16px; cursor: pointer; border-radius: 5px; margin: 10px; }
+        section { padding: 20px; margin: 20px 10%; border-radius: 8px; background: #222; }
+        input { padding: 8px; margin-right: 10px; }
+        #transactionStatus { font-weight: bold; font-size: 16px; }
+        .success { color: green; }
+        .error { color: red; }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.7.4/web3.min.js"></script>
 </head>
 <body>
     <header>
         <h1>🚀 Web3 Chain Labs</h1>
-        <p>AI-Powered Crypto Strategies & Web3 Innovation</p>
         <button id="connectWallet" onclick="connectWallet()">Connect Wallet</button>
         <p id="walletAddress"></p>
     </header>
 
     <section id="buy-token">
         <h2>💰 Buy $W3LABS Token</h2>
-        <p>Join the future of AI-powered crypto trading. Get your $W3LABS tokens now.</p>
         <input type="number" id="ethAmount" step="0.01" min="0.01" value="0.1">
         <button id="buyTokens" onclick="buyTokens(document.getElementById('ethAmount').value)">Buy $W3LABS</button>
         <p id="transactionStatus"></p>
     </section>
 
     <script>
+        if (typeof window.ethereum === "undefined") {
+            alert("⚠️ MetaMask не е инсталиран! Моля, инсталирайте го.");
+        }
+
         const PRESALE_CONTRACT_ADDRESS = "0x7e3Ec9F4b530b1BB6143EE3D4B6d218610D3F76D";
-        const PRESALE_ABI = [
-            {"constant": false, "inputs": [], "name": "buyTokens", "outputs": [], "payable": true, "stateMutability": "payable", "type": "function"}
-        ];
+        const PRESALE_ABI = [{"constant": false, "inputs": [], "name": "buyTokens", "outputs": [], "payable": true, "stateMutability": "payable", "type": "function"}];
 
         let web3, presaleContract, userAccount;
 
         async function connectWallet() {
             if (window.ethereum) {
-                try {
-                    web3 = new Web3(window.ethereum);
-                    presaleContract = new web3.eth.Contract(PRESALE_ABI, PRESALE_CONTRACT_ADDRESS);
-                    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                    userAccount = accounts[0];
-                    document.getElementById('walletAddress').innerText = `Connected: ${userAccount}`;
-                    document.getElementById('connectWallet').innerText = "Wallet Connected";
-                    document.getElementById('transactionStatus').innerText = "Connected!";
-                } catch (error) {
-                    document.getElementById('transactionStatus').innerText = "Failed: " + error.message;
-                }
+                web3 = new Web3(window.ethereum);
+                presaleContract = new web3.eth.Contract(PRESALE_ABI, PRESALE_CONTRACT_ADDRESS);
+                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                userAccount = accounts[0];
+                document.getElementById('walletAddress').innerText = `Connected: ${userAccount}`;
             } else {
-                document.getElementById('transactionStatus').innerText = "Please install MetaMask!";
+                alert("Please install MetaMask!");
             }
         }
 
         async function buyTokens(ethAmount) {
-            try {
-                document.getElementById('transactionStatus').innerText = "Sending to MetaMask...";
-                console.log("Starting transaction with amount:", ethAmount);
-                const ethWei = web3.utils.toWei(ethAmount.toString(), 'ether');
-                console.log("Converted to Wei:", ethWei);
-                const tx = await presaleContract.methods.buyTokens().send({
-                    from: userAccount,
-                    value: ethWei
-                });
-                console.log("Transaction result:", tx);
-                document.getElementById('transactionStatus').innerText = "Transaction sent: " + tx.transactionHash;
-            } catch (error) {
-                console.log("Error:", error.message);
-                document.getElementById('transactionStatus').innerText = "Buy failed: " + error.message;
+            if (!userAccount) {
+                updateStatus("❌ Please connect your wallet first!", false);
+                return;
             }
+
+            const ethWei = web3.utils.toWei(ethAmount.toString(), 'ether');
+            await presaleContract.methods.buyTokens().send({ from: userAccount, value: ethWei });
+            updateStatus("✅ Transaction successful!", true);
+        }
+
+        function updateStatus(message, success) {
+            const status = document.getElementById('transactionStatus');
+            status.innerText = message;
+            status.className = success ? "success" : "error";
         }
     </script>
 </body>
