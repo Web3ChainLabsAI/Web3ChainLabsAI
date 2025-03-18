@@ -1,73 +1,52 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bg">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Web3 Chain Labs</title>
-    <style>
-        body { font-family: Arial, sans-serif; text-align: center; margin: 0; padding: 0; background-color: #121212; color: white; }
-        header { padding: 20px; background: #1e1e1e; }
-        button { padding: 10px 20px; background: #00aaff; border: none; color: white; font-size: 16px; cursor: pointer; border-radius: 5px; margin: 10px; }
-        section { padding: 20px; margin: 20px 10%; border-radius: 8px; background: #222; }
-        input { padding: 8px; margin-right: 10px; }
-        #transactionStatus { font-weight: bold; font-size: 16px; }
-        .success { color: green; }
-        .error { color: red; }
-    </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.7.4/web3.min.js"></script>
+    <title>Онлайн Магазин</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 </head>
-<body>
-    <header>
-        <h1>🚀 Web3 Chain Labs</h1>
-        <button id="connectWallet" onclick="connectWallet()">Connect Wallet</button>
-        <p id="walletAddress"></p>
-    </header>
+<body class="bg-gray-100">
 
-    <section id="buy-token">
-        <h2>💰 Buy $W3LABS Token</h2>
-        <input type="number" id="ethAmount" step="0.01" min="0.01" value="0.1">
-        <button id="buyTokens" onclick="buyTokens(document.getElementById('ethAmount').value)">Buy $W3LABS</button>
-        <p id="transactionStatus"></p>
+    <!-- Навигация -->
+    <nav class="bg-blue-600 p-4 text-white flex justify-between">
+        <h1 class="text-2xl font-bold">🛍 Онлайн Магазин</h1>
+        <button id="cart-btn" class="bg-white text-blue-600 px-4 py-2 rounded">
+            🛒 Количка (<span id="cart-count">0</span>)
+        </button>
+    </nav>
+
+    <!-- Секция с продукти -->
+    <section class="container mx-auto mt-10 p-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-white p-4 shadow-md rounded-lg text-center">
+                <img src="https://via.placeholder.com/150" alt="Продукт" class="mx-auto">
+                <h2 class="text-xl font-bold mt-2">Продукт 1</h2>
+                <p class="text-gray-600">Цена: <span class="text-green-600 font-bold">20.00</span> лв</p>
+                <button onclick="addToCart(1, 'Продукт 1', 20.00)" class="bg-blue-600 text-white px-4 py-2 rounded mt-2">Добави в количката</button>
+            </div>
+            
+            <div class="bg-white p-4 shadow-md rounded-lg text-center">
+                <img src="https://via.placeholder.com/150" alt="Продукт" class="mx-auto">
+                <h2 class="text-xl font-bold mt-2">Продукт 2</h2>
+                <p class="text-gray-600">Цена: <span class="text-green-600 font-bold">35.00</span> лв</p>
+                <button onclick="addToCart(2, 'Продукт 2', 35.00)" class="bg-blue-600 text-white px-4 py-2 rounded mt-2">Добави в количката</button>
+            </div>
+        </div>
     </section>
 
-    <script>
-        if (typeof window.ethereum === "undefined") {
-            alert("⚠️ MetaMask не е инсталиран! Моля, инсталирайте го.");
-        }
+    <!-- Количка -->
+    <div id="cart-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+        <div class="bg-white p-6 rounded-lg w-96">
+            <h2 class="text-xl font-bold">🛒 Количка</h2>
+            <ul id="cart-items" class="mt-4"></ul>
+            <p class="text-lg font-bold mt-4">Общо: <span id="total-price">0.00</span> лв</p>
+            <div id="paypal-button-container" class="mt-4"></div>
+            <button onclick="closeCart()" class="bg-red-500 text-white px-4 py-2 rounded mt-2">Затвори</button>
+        </div>
+    </div>
 
-        const PRESALE_CONTRACT_ADDRESS = "0x7e3Ec9F4b530b1BB6143EE3D4B6d218610D3F76D";
-        const PRESALE_ABI = [{"constant": false, "inputs": [], "name": "buyTokens", "outputs": [], "payable": true, "stateMutability": "payable", "type": "function"}];
-
-        let web3, presaleContract, userAccount;
-
-        async function connectWallet() {
-            if (window.ethereum) {
-                web3 = new Web3(window.ethereum);
-                presaleContract = new web3.eth.Contract(PRESALE_ABI, PRESALE_CONTRACT_ADDRESS);
-                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                userAccount = accounts[0];
-                document.getElementById('walletAddress').innerText = `Connected: ${userAccount}`;
-            } else {
-                alert("Please install MetaMask!");
-            }
-        }
-
-        async function buyTokens(ethAmount) {
-            if (!userAccount) {
-                updateStatus("❌ Please connect your wallet first!", false);
-                return;
-            }
-
-            const ethWei = web3.utils.toWei(ethAmount.toString(), 'ether');
-            await presaleContract.methods.buyTokens().send({ from: userAccount, value: ethWei });
-            updateStatus("✅ Transaction successful!", true);
-        }
-
-        function updateStatus(message, success) {
-            const status = document.getElementById('transactionStatus');
-            status.innerText = message;
-            status.className = success ? "success" : "error";
-        }
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
