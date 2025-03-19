@@ -38,24 +38,26 @@ async function connectWallet() {
         alert("Please install MetaMask!");
         return;
     }
-
     try {
         const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
         const chainId = await ethereum.request({ method: 'eth_chainId' });
-        const expectedChainId = "0x1"; // Ethereum Mainnet
-        if (chainId !== expectedChainId) {
+        if (chainId !== "0x1") {
             alert("Please switch to Ethereum Mainnet (Chain ID: 1)");
             return;
         }
         document.getElementById('walletAddress').innerText = `Connected: ${accounts[0]}`;
-        await checkTokenBalance(accounts[0]);
+        getTokenBalance(accounts[0]); // Смених от checkTokenBalance на getTokenBalance
     } catch (error) {
+        alert("Wallet connection failed: " + error.message);
         console.error(error);
-        alert("Wallet connection failed.");
     }
 }
 
-async function checkTokenBalance(userAddress) {
+async function getTokenBalance(userAddress) {
+    if (!window.ethereum) {
+        alert("Please install MetaMask!");
+        return;
+    }
     const web3 = new Web3(window.ethereum);
     const contract = new web3.eth.Contract(tokenABI, tokenAddress);
     try {
@@ -63,7 +65,7 @@ async function checkTokenBalance(userAddress) {
         const tokenBalance = web3.utils.fromWei(balance, 'ether');
         alert(`Your $W3LABS Balance: ${tokenBalance} tokens`);
     } catch (error) {
-        alert("Error checking balance: " + error.message);
+        alert("Balance check failed: " + error.message);
         console.error(error);
     }
 }
@@ -73,20 +75,16 @@ async function buyTokens(ethAmount) {
         alert("Please install MetaMask!");
         return;
     }
-
     const web3 = new Web3(window.ethereum);
-    const preSaleContract = new web3.eth.Contract(preSaleABI, preSaleContractAddress);
-    const tokenContract = new web3.eth.Contract(tokenABI, tokenAddress);
-    const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
-
-    // Проверка на мрежата
-    const chainId = await ethereum.request({ method: 'eth_chainId' });
-    if (chainId !== "0x1") {
-        alert("Please switch to Ethereum Mainnet (Chain ID: 1)");
-        return;
-    }
-
+    const contract = new web3.eth.Contract(preSaleABI, preSaleContractAddress);
     try {
+        const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+        const chainId = await ethereum.request({ method: 'eth_chainId' });
+        if (chainId !== "0x1") {
+            alert("Please switch to Ethereum Mainnet (Chain ID: 1)");
+            return;
+        }
+
         const ethWei = web3.utils.toWei(ethAmount, 'ether');
         if (parseFloat(ethAmount) > 5) {
             alert("Maximum purchase is 5 ETH!");
@@ -95,25 +93,26 @@ async function buyTokens(ethAmount) {
 
         console.log(`Sending ${ethAmount} ETH to ${preSaleContractAddress}`);
 
-        // Проверка на баланса преди покупка
-        const initialBalance = await tokenContract.methods.balanceOf(accounts[0]).call();
-        const initialTokenBalance = web3.utils.fromWei(initialBalance, 'ether');
-        console.log(`Initial balance: ${initialTokenBalance} $W3LABS`);
+        // Оценка на газа
+        const gasEstimate = await contract.methods.buyTokens().estimateGas({
+            from: accounts[0],
+            value: ethWei
+        });
+        console.log(`Estimated gas: ${gasEstimate}`);
 
-        // Изпращане на транзакцията
-        const tx = await preSaleContract.methods.buyTokens().send({
+        const tx = await contract.methods.buyTokens().send({
             from: accounts[0],
             value: ethWei,
-            gas: 200000 // Достатъчно газ за транзакцията
+            gas: Math.max(gasEstimate * 1.2, 300000) // 20% буфер или минимум 300,000
         });
-        alert(`✅ Transaction successful! Tx Hash: ${tx.transactionHash}`);
+        alert(`Transaction successful! Tx Hash: ${tx.transactionHash}`);
 
         // Проверка на баланса след покупка
-        const newBalance = await tokenContract.methods.balanceOf(accounts[0]).call();
+        const newBalance = await web3.eth.Contract(tokenABI, tokenAddress).methods.balanceOf(accounts[0]).call();
         const newTokenBalance = web3.utils.fromWei(newBalance, 'ether');
         alert(`Your updated $W3LABS Balance: ${newTokenBalance} tokens`);
     } catch (error) {
-        alert("❌ Transaction failed: " + error.message);
+        alert("Transaction failed: " + error.message);
         console.error(error);
     }
 }
