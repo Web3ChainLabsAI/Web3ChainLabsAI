@@ -6,7 +6,18 @@
     <title>Web3 Chain Labs AI</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.7.4/web3.min.js"></script>
-    <!-- SEO и OG тагове са непроменени -->
+
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Expand your crypto potential with Web3Chain Labs! AI-Powered Crypto Strategies, Web3 Integration, and Smart Contract Development.">
+    <meta name="keywords" content="crypto, Web3, blockchain, AI trading, DeFi, NFT, tokenomics, ICO, IDO, smart contracts">
+    <meta name="author" content="Web3 Chain Labs AI">
+
+    <!-- OpenGraph (Facebook, Twitter, Discord) -->
+    <meta property="og:title" content="Web3 Chain Labs AI - AI-Powered Crypto & Web3 Solutions">
+    <meta property="og:description" content="Expand your crypto project with Web3Chain Labs. From smart contracts to AI-powered trading strategies.">
+    <meta property="og:image" content="https://www.Web3ChainLabsAI.de/logo.png">
+    <meta property="og:url" content="https://www.Web3ChainLabsAI.de">
+    <meta property="og:type" content="website">
 </head>
 <body>
     <header>
@@ -42,7 +53,10 @@
     <section id="buy-token">
         <h2>💰 Buy $W3LABS Token</h2>
         <p>Join the future of AI-powered crypto trading. Get your $W3LABS tokens now.</p>
-        <button onclick="buyTokens('0.1')">Buy $W3LABS (0.1 ETH)</button>
+        <label for="ethAmount">Enter ETH amount:</label>
+        <input type="number" id="ethAmount" step="0.001" min="0.001" placeholder="0.05" style="margin-right: 10px;" oninput="calculateTokens()">
+        <p id="tokenAmount">You will receive: 0 $W3LABS</p>
+        <button onclick="buyTokens()">Buy $W3LABS</button>
     </section>
 
     <section id="telegram">
