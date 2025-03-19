@@ -1,161 +1,154 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Web3 Chain Labs AI - PreSale</title>
-<!-- ✅ Зареждане на Web3.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.7.4/web3.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.7.4/web3.min.js"></script>
 
-<style>
-    /* ✅ Основен стил */
-    body {
-        font-family: Arial, sans-serif;
-        text-align: center;
-        margin: 0;
-        padding: 0;
-        background-color: #fff;
-        color: #333;
-    }
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            background-color: #fff;
+            color: #333;
+        }
 
-    header {
-        background-color: #f8f9fa;
-        padding: 20px;
-        box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
-    }
+        header {
+            background-color: #f8f9fa;
+            padding: 20px;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+        }
 
-    button {
-        background-color: #007bff;
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        margin: 10px;
-        cursor: pointer;
-        border-radius: 5px;
-        font-size: 16px;
-        transition: background 0.3s ease;
-    }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: background 0.3s ease;
+        }
 
-    button:hover {
-        background-color: #0056b3;
-    }
+        button:hover {
+            background-color: #0056b3;
+        }
 
-    section {
-        padding: 30px;
-        max-width: 800px;
-        margin: auto;
-    }
+        section {
+            padding: 30px;
+            max-width: 800px;
+            margin: auto;
+        }
 
-    footer {
-        text-align: center;
-        padding: 20px;
-        background: #f8f9fa;
-        margin-top: 20px;
-        box-shadow: 0px -2px 5px rgba(0, 0, 0, 0.1);
-    }
+        footer {
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+            margin-top: 20px;
+            box-shadow: 0px -2px 5px rgba(0, 0, 0, 0.1);
+        }
 
-    /* ✅ MODAL СТИЛОВЕ (поправени) */
-    .modal {
-        display: none;
-        position: fixed;
-        z-index: 1000;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.7);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
-    .modal-content {
-        background: white;
-        padding: 20px;
-        border-radius: 10px;
-        text-align: center;
-        width: 90%;
-        max-width: 400px;
-        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-        animation: fadeIn 0.3s ease-in-out;
-        position: relative;
-    }
+        .modal-content {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
 
-    .close {
-        position: absolute;
-        top: 10px;
-        right: 15px;
-        font-size: 24px;
-        cursor: pointer;
-    }
+        .close {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 24px;
+            cursor: pointer;
+        }
 
-    input {
-        width: 100%;
-        padding: 10px;
-        margin-top: 10px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-    }
-
-    @keyframes fadeIn {
-        from { opacity: 0; transform: scale(0.95); }
-        to { opacity: 1; transform: scale(1); }
-    }
-</style>
-
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+    </style>
 </head>
 <body>
     <header>
-        <h1> Web3 Chain Labs AI</h1>
+        <h1>🚀 Web3 Chain Labs AI</h1>
         <p>AI-Powered Crypto Strategies & Web3 Innovation</p>
         <button id="connectWallet">Connect Wallet</button>
         <button id="checkBalance">Check $W3LABS Balance</button>
         <p id="walletAddress">Not connected</p>
     </header>
-<section id="buy-token">
-    <h2>💰 Buy $W3LABS Token</h2>
-    <button id="buyNowButton">Buy $W3LABS</button>
-</section>
 
-<!-- ✅ MODAL ПРОЗОРЕЦ ЗА ПОКУПКА (Оправен) -->
-<div id="buyModal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="closeModal()">&times;</span>
-        <h2>Buy $W3LABS Token</h2>
-        <p>Enter the amount of ETH you want to spend:</p>
-        <input type="number" id="ethAmountModal" step="0.001" min="0.001" placeholder="0.05" oninput="calculateTokens()">
-        <p id="tokenAmountModal">You will receive: 0 $W3LABS</p>
-        <button id="buyButton">Confirm Purchase</button>
+    <section id="buy-token">
+        <h2>💰 Buy $W3LABS Token</h2>
+        <button id="buyNowButton">Buy $W3LABS</button>
+    </section>
+
+    <!-- ✅ MODAL ПРОЗОРЕЦ ЗА ПОКУПКА (Оправен) -->
+    <div id="buyModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>Buy $W3LABS Token</h2>
+            <p>Enter the amount of ETH you want to spend:</p>
+            <input type="number" id="ethAmountModal" step="0.001" min="0.001" placeholder="0.05">
+            <p id="tokenAmountModal">You will receive: 0 $W3LABS</p>
+            <button id="buyButton">Confirm Purchase</button>
+        </div>
     </div>
-</div>
 
-<footer>
-    <p>© 2025 Web3 Chain Labs AI. All Rights Reserved.</p>
-</footer>
+    <footer>
+        <p>© 2025 Web3 Chain Labs AI. All Rights Reserved.</p>
+    </footer>
 
-<!-- ✅ JavaScript -->
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const connectButton = document.getElementById("connectWallet");
-        const checkBalanceButton = document.getElementById("checkBalance");
-        const buyNowButton = document.getElementById("buyNowButton");
-        const buyButton = document.getElementById("buyButton");
-        const modal = document.getElementById("buyModal");
+    <!-- ✅ JavaScript -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const connectButton = document.getElementById("connectWallet");
+            const checkBalanceButton = document.getElementById("checkBalance");
+            const buyNowButton = document.getElementById("buyNowButton");
+            const buyButton = document.getElementById("buyButton");
+            const modal = document.getElementById("buyModal");
+            const ethAmountInput = document.getElementById("ethAmountModal");
+            const tokenDisplay = document.getElementById("tokenAmountModal");
 
-        connectButton.addEventListener("click", async function () {
-            if (typeof window.ethereum !== "undefined") {
-                try {
-                    const accounts = await ethereum.request({ method: "eth_requestAccounts" });
-                    document.getElementById("walletAddress").innerText = `Connected: ${accounts[0].slice(0, 6)}...${accounts[0].slice(-4)}`;
-                } catch (error) {
-                    alert("Wallet connection failed: " + error.message);
+            connectButton.addEventListener("click", async function () {
+                if (typeof window.ethereum !== "undefined") {
+                    try {
+                        const accounts = await ethereum.request({ method: "eth_requestAccounts" });
+                        document.getElementById("walletAddress").innerText = `Connected: ${accounts[0].slice(0, 6)}...${accounts[0].slice(-4)}`;
+                    } catch (error) {
+                        alert("Wallet connection failed: " + error.message);
+                    }
+                } else {
+                    alert("MetaMask is not installed. Please install it to connect your wallet.");
                 }
-            } else {
-                alert("MetaMask is not installed. Please install it to connect your wallet.");
-            }
-        });
+            });
 
-        checkBalanceButton.addEventListener("click", async function () {
-            if (typeof window.ethereum !== "undefined") {
+            checkBalanceButton.addEventListener("click", async function () {
                 try {
                     const web3 = new Web3(window.ethereum);
                     const accounts = await ethereum.request({ method: "eth_requestAccounts" });
@@ -168,37 +161,61 @@
                 } catch (error) {
                     alert("Balance check failed: " + error.message);
                 }
-            } else {
-                alert("MetaMask is not installed.");
-            }
-        });
+            });
 
-        buyNowButton.addEventListener("click", function () {
-            modal.style.display = "flex";
-        });
+            buyNowButton.addEventListener("click", function () {
+                modal.style.display = "flex";
+            });
 
-        document.querySelector(".close").addEventListener("click", function () {
-            modal.style.display = "none";
-        });
-
-        window.onclick = function (event) {
-            if (event.target === modal) {
+            function closeModal() {
                 modal.style.display = "none";
             }
-        };
 
-        function calculateTokens() {
-            const ethAmountInput = document.getElementById("ethAmountModal").value;
-            const tokenDisplay = document.getElementById("tokenAmountModal");
-            const tokensPerEth = 1000000;
-            const tokenAmount = parseFloat(ethAmountInput) * tokensPerEth;
-            tokenDisplay.innerText = `You will receive: ${tokenAmount.toLocaleString()} $W3LABS`;
-        }
+            document.querySelector(".close").addEventListener("click", closeModal);
 
-        document.getElementById("ethAmountModal").addEventListener("input", calculateTokens);
-    });
-</script>
+            window.onclick = function (event) {
+                if (event.target === modal) {
+                    closeModal();
+                }
+            };
 
+            buyButton.addEventListener("click", async function () {
+                try {
+                    const web3 = new Web3(window.ethereum);
+                    const accounts = await ethereum.request({ method: "eth_requestAccounts" });
+                    const ethAmount = ethAmountInput.value;
+                    if (!ethAmount || parseFloat(ethAmount) <= 0) {
+                        alert("Please enter a valid ETH amount!");
+                        return;
+                    }
+                    const presaleContract = new web3.eth.Contract(
+                        [{"inputs": [], "name": "buyTokens", "outputs": [], "stateMutability": "payable", "type": "function"}],
+                        "0x7e3Ec9F4b530b1BB6143EE3D4B6d218610D3F76D"
+                    );
+                    const weiAmount = web3.utils.toWei(ethAmount, "ether");
+                    await presaleContract.methods.buyTokens().send({
+                        from: accounts[0],
+                        value: weiAmount
+                    });
+                    alert("✅ Purchase successful!");
+                    closeModal();
+                } catch (error) {
+                    alert("❌ Purchase failed: " + error.message);
+                    closeModal();
+                }
+            });
+
+            function calculateTokens() {
+                const ethAmount = parseFloat(ethAmountInput.value);
+                if (!isNaN(ethAmount) && ethAmount > 0) {
+                    tokenDisplay.innerText = `You will receive: ${ethAmount * 1000000} $W3LABS`;
+                } else {
+                    tokenDisplay.innerText = "You will receive: 0 $W3LABS";
+                }
+            }
+
+            ethAmountInput.addEventListener("input", calculateTokens);
+        });
+    </script>
 </body>
 </html>
-
