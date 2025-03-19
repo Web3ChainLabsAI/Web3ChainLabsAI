@@ -55,7 +55,7 @@
             box-shadow: 0px -2px 5px rgba(0, 0, 0, 0.1);
         }
 
-        /* ✅ MODAL СТИЛОВЕ (Оправени) */
+        /* ✅ MODAL СТИЛОВЕ (поправени) */
         .modal {
             display: none;
             position: fixed;
@@ -66,8 +66,8 @@
             height: 100%;
             background-color: rgba(0, 0, 0, 0.7);
             display: flex;
-            justify-content: center;
             align-items: center;
+            justify-content: center;
         }
 
         .modal-content {
@@ -88,6 +88,19 @@
             right: 15px;
             font-size: 24px;
             cursor: pointer;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
         }
     </style>
 </head>
@@ -118,42 +131,85 @@
     </div>
 
     <footer>
-        <p>© 2025 Web3 Chain Labs AI. All Rights Reserved.</p>
-    </footer>
+        <p>🌐 About Web3 Chain Labs AI
+Expand the potential of your crypto project with Web3Chain Labs! We provide advanced AI-powered crypto solutions, including smart contract development, automated trading bots, NFT creation, and liquidity management.
+
+💡 Our Services
+🔹 Crypto payment integration – easy and secure solutions for your website.
+🔹 Automated trading bots – optimize your trading with our algorithmic solutions.
+🔹 NFT programs and development – creating unique digital assets.
+🔹 Crypto platform development – building exchanges, DeFi tools, and other Web3 projects.
+🔹 Tokenomics and analysis – strategic economic models for sustainable growth.
+🔹 Liquidity and pricing calculations – precise analytics for your token’s stability.
+🔹 Whitepaper creation – professionally written documents for your project.
+🔹 ICO & IDO support – successful launch of your token offering.
+🔹 Smart contracts – reliable programming for security and automation.
+🔹 Custom crypto solutions – your ideas, brought to life by experts.</footer>
 
     <!-- ✅ JavaScript -->
     <script>
-        document.getElementById("buyButton").addEventListener("click", async function () {
-            if (typeof window.ethereum !== "undefined") {
-                try {
-                    const web3 = new Web3(window.ethereum);
-                    const accounts = await ethereum.request({ method: "eth_requestAccounts" });
-                    const presaleContract = new web3.eth.Contract(
-                        [{"constant": false, "inputs": [], "name": "buyTokens", "outputs": [], "stateMutability": "payable", "type": "function"}], 
-                        "0x7e3Ec9F4b530b1BB6143EE3D4B6d218610D3F76D"
-                    );
-                    const ethAmount = document.getElementById("ethAmountModal").value;
+        document.addEventListener("DOMContentLoaded", function () {
+            const connectButton = document.getElementById("connectWallet");
+            const checkBalanceButton = document.getElementById("checkBalance");
+            const buyNowButton = document.getElementById("buyNowButton");
+            const buyButton = document.getElementById("buyButton");
+            const modal = document.getElementById("buyModal");
 
-                    if (!ethAmount || parseFloat(ethAmount) <= 0) {
-                        alert("❌ Въведи валидно количество ETH!");
-                        return;
+            connectButton.addEventListener("click", async function () {
+                if (typeof window.ethereum !== "undefined") {
+                    try {
+                        const accounts = await ethereum.request({ method: "eth_requestAccounts" });
+                        document.getElementById("walletAddress").innerText = `Connected: ${accounts[0].slice(0, 6)}...${accounts[0].slice(-4)}`;
+                    } catch (error) {
+                        alert("Wallet connection failed: " + error.message);
                     }
-
-                    const ethWei = web3.utils.toWei(ethAmount.toString(), "ether");
-
-                    await presaleContract.methods.buyTokens().send({
-                        from: accounts[0],
-                        value: ethWei
-                    });
-
-                    alert("✅ Покупката е успешна!");
-                    document.getElementById("buyModal").style.display = "none"; // Затваряне на модалния прозорец
-                } catch (error) {
-                    alert("❌ Грешка при покупката: " + error.message);
+                } else {
+                    alert("MetaMask is not installed. Please install it to connect your wallet.");
                 }
-            } else {
-                alert("❌ MetaMask не е инсталиран.");
+            });
+
+            checkBalanceButton.addEventListener("click", async function () {
+                if (typeof window.ethereum !== "undefined") {
+                    try {
+                        const web3 = new Web3(window.ethereum);
+                        const accounts = await ethereum.request({ method: "eth_requestAccounts" });
+                        const tokenContract = new web3.eth.Contract(
+                            [{"constant": true, "inputs": [{"name": "owner", "type": "address"}], "name": "balanceOf", "outputs": [{"name": "balance", "type": "uint256"}], "type": "function"}], 
+                            "0x00Ae43d74aD13b675a50aB10393eeE9300F3bCf1"
+                        );
+                        const balance = await tokenContract.methods.balanceOf(accounts[0]).call();
+                        alert(`Your $W3LABS Balance: ${web3.utils.fromWei(balance, "ether")} tokens`);
+                    } catch (error) {
+                        alert("Balance check failed: " + error.message);
+                    }
+                } else {
+                    alert("MetaMask is not installed.");
+                }
+            });
+
+            buyNowButton.addEventListener("click", function () {
+                modal.style.display = "flex";
+            });
+
+            document.querySelector(".close").addEventListener("click", function () {
+                modal.style.display = "none";
+            });
+
+            window.onclick = function (event) {
+                if (event.target === modal) {
+                    modal.style.display = "none";
+                }
+            };
+
+            function calculateTokens() {
+                const ethAmountInput = document.getElementById("ethAmountModal").value;
+                const tokenDisplay = document.getElementById("tokenAmountModal");
+                const tokensPerEth = 1000000;
+                const tokenAmount = parseFloat(ethAmountInput) * tokensPerEth;
+                tokenDisplay.innerText = `You will receive: ${tokenAmount.toLocaleString()} $W3LABS`;
             }
+
+            document.getElementById("ethAmountModal").addEventListener("input", calculateTokens);
         });
     </script>
 </body>
