@@ -46,7 +46,7 @@ async function connectWallet() {
             return;
         }
         document.getElementById('walletAddress').innerText = `Connected: ${accounts[0]}`;
-        getTokenBalance(accounts[0]); // Смених от checkTokenBalance на getTokenBalance
+        getTokenBalance(accounts[0]);
     } catch (error) {
         alert("Wallet connection failed: " + error.message);
         console.error(error);
@@ -86,11 +86,6 @@ async function buyTokens(ethAmount) {
         }
 
         const ethWei = web3.utils.toWei(ethAmount, 'ether');
-        if (parseFloat(ethAmount) > 5) {
-            alert("Maximum purchase is 5 ETH!");
-            return;
-        }
-
         console.log(`Sending ${ethAmount} ETH to ${preSaleContractAddress}`);
 
         // Оценка на газа
@@ -100,10 +95,11 @@ async function buyTokens(ethAmount) {
         });
         console.log(`Estimated gas: ${gasEstimate}`);
 
+        // Изпращане на транзакцията с висок газ лимит
         const tx = await contract.methods.buyTokens().send({
             from: accounts[0],
             value: ethWei,
-            gas: Math.max(gasEstimate * 1.2, 300000) // 20% буфер или минимум 300,000
+            gas: Math.max(gasEstimate * 1.5, 500000) // Увеличен на 500,000 с 50% буфер
         });
         alert(`Transaction successful! Tx Hash: ${tx.transactionHash}`);
 
