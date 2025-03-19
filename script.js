@@ -100,7 +100,6 @@ async function buyTokens() {
             return;
         }
 
-        // Взимаме ETH стойността от input полето
         const ethAmount = document.getElementById('ethAmount').value;
         if (!ethAmount || parseFloat(ethAmount) <= 0) {
             alert("Please enter a valid ETH amount!");
@@ -111,11 +110,9 @@ async function buyTokens() {
             return;
         }
 
-        // Преобразуваме в Wei и използваме BN формат
         const ethWei = web3.utils.toBN(web3.utils.toWei(ethAmount.toString(), 'ether'));
         console.log(`Sending ${ethAmount} ETH (${ethWei.toString()} Wei) to ${preSaleContractAddress}`);
 
-        // Проверка на ETH баланса
         const ethBalance = await web3.eth.getBalance(accounts[0]);
         const ethBalanceEth = web3.utils.fromWei(ethBalance, 'ether');
 
@@ -126,7 +123,6 @@ async function buyTokens() {
             return;
         }
 
-        // Оценка на газа
         const gasEstimate = await contract.methods.buyTokens().estimateGas({
             from: accounts[0],
             value: ethWei
@@ -135,17 +131,17 @@ async function buyTokens() {
 
         const gasLimit = web3.utils.toBN(Math.max(Math.floor(gasEstimate * 1.5), 300000));
 
-        // Изпращаме транзакцията
         const tx = await contract.methods.buyTokens().send({
             from: accounts[0],
-            value: ethWei.toString(),  // Wei трябва да е string
-            gas: gasLimit.toString()   // Gas също трябва да е string
+            value: ethWei.toString(),
+            gas: gasLimit.toString()
         });
 
         alert(`Transaction successful! Tx Hash: ${tx.transactionHash}`);
 
-        // Проверяваме баланса след покупката
-        const newBalance = await new web3.eth.Contract(tokenABI, tokenAddress).methods.balanceOf(accounts[0]).call();
+        // ✅ Поправена проверка на баланса след покупката
+        const tokenContract = new web3.eth.Contract(tokenABI, tokenAddress);
+        const newBalance = await tokenContract.methods.balanceOf(accounts[0]).call();
         const newTokenBalance = web3.utils.fromWei(newBalance, 'ether');
         alert(`Your updated $W3LABS Balance: ${newTokenBalance} tokens`);
     } catch (error) {
