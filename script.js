@@ -70,16 +70,17 @@ async function getTokenBalance(userAddress) {
 }
 
 function calculateTokens() {
-    const ethAmount = document.getElementById('ethAmount').value;
+    const ethAmountInput = document.getElementById('ethAmount').value;
     const tokenDisplay = document.getElementById('tokenAmount');
-    if (!ethAmount || ethAmount <= 0) {
+    if (!ethAmountInput || parseFloat(ethAmountInput) <= 0) {
         tokenDisplay.innerText = "You will receive: 0 $W3LABS";
         return;
     }
 
-    // Фаза 1: 1 ETH = 1,000,000 $W3LABS (до 17 май 2025)
-    const tokensPerEth = 1000000;
-    const tokenAmount = ethAmount * tokensPerEth;
+    // Преобразуване в стринг и изчисление
+    const ethAmount = parseFloat(ethAmountInput).toString();
+    const tokensPerEth = 1000000; // Фаза 1: 1 ETH = 1,000,000 $W3LABS
+    const tokenAmount = parseFloat(ethAmount) * tokensPerEth;
     tokenDisplay.innerText = `You will receive: ${tokenAmount.toLocaleString()} $W3LABS`;
 }
 
@@ -98,7 +99,6 @@ async function buyTokens() {
             return;
         }
 
-        // Вземане на количеството като стринг
         const ethAmount = document.getElementById('ethAmount').value.toString();
         if (!ethAmount || parseFloat(ethAmount) <= 0) {
             alert("Please enter a valid ETH amount!");
