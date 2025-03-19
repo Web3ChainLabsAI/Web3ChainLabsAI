@@ -77,8 +77,8 @@ function calculateTokens() {
         return;
     }
 
-    // Текуща фаза: 18 март 2025 + 60 дни = до 17 май 2025, значи сме във Фаза 1
-    const tokensPerEth = 1000000; // Фаза 1: 1 ETH = 1,000,000 $W3LABS
+    // Фаза 1: 1 ETH = 1,000,000 $W3LABS (до 17 май 2025)
+    const tokensPerEth = 1000000;
     const tokenAmount = ethAmount * tokensPerEth;
     tokenDisplay.innerText = `You will receive: ${tokenAmount.toLocaleString()} $W3LABS`;
 }
@@ -98,8 +98,9 @@ async function buyTokens() {
             return;
         }
 
-        const ethAmount = document.getElementById('ethAmount').value;
-        if (!ethAmount || ethAmount <= 0) {
+        // Вземане на количеството като стринг
+        const ethAmount = document.getElementById('ethAmount').value.toString();
+        if (!ethAmount || parseFloat(ethAmount) <= 0) {
             alert("Please enter a valid ETH amount!");
             return;
         }
