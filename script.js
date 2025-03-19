@@ -77,8 +77,8 @@ function calculateTokens() {
         return;
     }
 
-    // Преобразуване в стринг и изчисление
-    const ethAmount = parseFloat(ethAmountInput).toString();
+    // Преобразуване в стринг за точност
+    const ethAmount = ethAmountInput.toString();
     const tokensPerEth = 1000000; // Фаза 1: 1 ETH = 1,000,000 $W3LABS
     const tokenAmount = parseFloat(ethAmount) * tokensPerEth;
     tokenDisplay.innerText = `You will receive: ${tokenAmount.toLocaleString()} $W3LABS`;
@@ -99,6 +99,7 @@ async function buyTokens() {
             return;
         }
 
+        // Вземане на количеството като стринг
         const ethAmount = document.getElementById('ethAmount').value.toString();
         if (!ethAmount || parseFloat(ethAmount) <= 0) {
             alert("Please enter a valid ETH amount!");
@@ -116,8 +117,9 @@ async function buyTokens() {
         const ethBalance = await web3.eth.getBalance(accounts[0]);
         const ethBalanceEth = web3.utils.fromWei(ethBalance, 'ether');
         console.log(`Your ETH balance: ${ethBalanceEth} ETH`);
-        if (parseFloat(ethBalanceEth) < parseFloat(ethAmount) + 0.005) {
-            alert("Insufficient ETH! You need at least " + (parseFloat(ethAmount) + 0.005) + " ETH including fees.");
+        const minRequiredEth = (parseFloat(ethAmount) + 0.005).toString();
+        if (parseFloat(ethBalanceEth) < parseFloat(minRequiredEth)) {
+            alert("Insufficient ETH! You need at least " + minRequiredEth + " ETH including fees.");
             return;
         }
 
@@ -131,7 +133,7 @@ async function buyTokens() {
         const tx = await contract.methods.buyTokens().send({
             from: accounts[0],
             value: ethWei,
-            gas: Math.max(gasEstimate * 1.5, 300000)
+            gas: Math.max(Math.floor(gasEstimate * 1.5), 300000).toString() // Стринг за газ лимит
         });
         alert(`Transaction successful! Tx Hash: ${tx.transactionHash}`);
 
