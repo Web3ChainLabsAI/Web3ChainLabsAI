@@ -163,7 +163,7 @@
                         const accounts = await ethereum.request({ method: "eth_requestAccounts" });
                         const tokenContract = new web3.eth.Contract(
                             [{"constant": true, "inputs": [{"name": "owner", "type": "address"}], "name": "balanceOf", "outputs": [{"name": "balance", "type": "uint256"}], "type": "function"}], 
-                            "0x00Ae43d74aD13b675a50aB10393eeE9300F3bCf1"
+                            "0x7e3Ec9F4b530b1BB6143EE3D4B6d218610D3F76D"
                         );
                         const balance = await tokenContract.methods.balanceOf(accounts[0]).call();
                         alert(`Your $W3LABS Balance: ${web3.utils.fromWei(balance, "ether")} tokens`);
