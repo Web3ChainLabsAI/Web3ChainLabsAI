@@ -46,7 +46,6 @@ async function connectWallet() {
             return;
         }
         document.getElementById('walletAddress').innerText = `Connected: ${accounts[0]}`;
-        getTokenBalance(accounts[0]);
     } catch (error) {
         alert("Wallet connection failed: " + error.message);
         console.error(error);
@@ -70,7 +69,21 @@ async function getTokenBalance(userAddress) {
     }
 }
 
-async function buyTokens(ethAmount) {
+function calculateTokens() {
+    const ethAmount = document.getElementById('ethAmount').value;
+    const tokenDisplay = document.getElementById('tokenAmount');
+    if (!ethAmount || ethAmount <= 0) {
+        tokenDisplay.innerText = "You will receive: 0 $W3LABS";
+        return;
+    }
+
+    // Текуща фаза: 18 март 2025 + 60 дни = до 17 май 2025, значи сме във Фаза 1
+    const tokensPerEth = 1000000; // Фаза 1: 1 ETH = 1,000,000 $W3LABS
+    const tokenAmount = ethAmount * tokensPerEth;
+    tokenDisplay.innerText = `You will receive: ${tokenAmount.toLocaleString()} $W3LABS`;
+}
+
+async function buyTokens() {
     if (!window.ethereum) {
         alert("Please install MetaMask!");
         return;
@@ -85,8 +98,27 @@ async function buyTokens(ethAmount) {
             return;
         }
 
+        const ethAmount = document.getElementById('ethAmount').value;
+        if (!ethAmount || ethAmount <= 0) {
+            alert("Please enter a valid ETH amount!");
+            return;
+        }
+        if (parseFloat(ethAmount) > 5) {
+            alert("Maximum purchase is 5 ETH!");
+            return;
+        }
+
         const ethWei = web3.utils.toWei(ethAmount, 'ether');
         console.log(`Sending ${ethAmount} ETH to ${preSaleContractAddress}`);
+
+        // Проверка на ETH баланса
+        const ethBalance = await web3.eth.getBalance(accounts[0]);
+        const ethBalanceEth = web3.utils.fromWei(ethBalance, 'ether');
+        console.log(`Your ETH balance: ${ethBalanceEth} ETH`);
+        if (parseFloat(ethBalanceEth) < parseFloat(ethAmount) + 0.005) {
+            alert("Insufficient ETH! You need at least " + (parseFloat(ethAmount) + 0.005) + " ETH including fees.");
+            return;
+        }
 
         // Оценка на газа
         const gasEstimate = await contract.methods.buyTokens().estimateGas({
@@ -95,11 +127,10 @@ async function buyTokens(ethAmount) {
         });
         console.log(`Estimated gas: ${gasEstimate}`);
 
-        // Изпращане на транзакцията с висок газ лимит
         const tx = await contract.methods.buyTokens().send({
             from: accounts[0],
             value: ethWei,
-            gas: Math.max(gasEstimate * 1.5, 500000) // Увеличен на 500,000 с 50% буфер
+            gas: Math.max(gasEstimate * 1.5, 300000)
         });
         alert(`Transaction successful! Tx Hash: ${tx.transactionHash}`);
 
