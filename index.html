@@ -55,7 +55,7 @@
             box-shadow: 0px -2px 5px rgba(0, 0, 0, 0.1);
         }
 
-        /* ✅ MODAL СТИЛОВЕ (поправени) */
+        /* ✅ MODAL СТИЛОВЕ (Оправени) */
         .modal {
             display: none;
             position: fixed;
@@ -66,8 +66,8 @@
             height: 100%;
             background-color: rgba(0, 0, 0, 0.7);
             display: flex;
-            align-items: center;
             justify-content: center;
+            align-items: center;
         }
 
         .modal-content {
@@ -88,19 +88,6 @@
             right: 15px;
             font-size: 24px;
             cursor: pointer;
-        }
-
-        input {
-            width: 100%;
-            padding: 10px;
-            margin-top: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
         }
     </style>
 </head>
@@ -136,68 +123,37 @@
 
     <!-- ✅ JavaScript -->
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const connectButton = document.getElementById("connectWallet");
-            const checkBalanceButton = document.getElementById("checkBalance");
-            const buyNowButton = document.getElementById("buyNowButton");
-            const buyButton = document.getElementById("buyButton");
-            const modal = document.getElementById("buyModal");
+        document.getElementById("buyButton").addEventListener("click", async function () {
+            if (typeof window.ethereum !== "undefined") {
+                try {
+                    const web3 = new Web3(window.ethereum);
+                    const accounts = await ethereum.request({ method: "eth_requestAccounts" });
+                    const presaleContract = new web3.eth.Contract(
+                        [{"constant": false, "inputs": [], "name": "buyTokens", "outputs": [], "stateMutability": "payable", "type": "function"}], 
+                        "0x7e3Ec9F4b530b1BB6143EE3D4B6d218610D3F76D"
+                    );
+                    const ethAmount = document.getElementById("ethAmountModal").value;
 
-            connectButton.addEventListener("click", async function () {
-                if (typeof window.ethereum !== "undefined") {
-                    try {
-                        const accounts = await ethereum.request({ method: "eth_requestAccounts" });
-                        document.getElementById("walletAddress").innerText = `Connected: ${accounts[0].slice(0, 6)}...${accounts[0].slice(-4)}`;
-                    } catch (error) {
-                        alert("Wallet connection failed: " + error.message);
+                    if (!ethAmount || parseFloat(ethAmount) <= 0) {
+                        alert("❌ Въведи валидно количество ETH!");
+                        return;
                     }
-                } else {
-                    alert("MetaMask is not installed. Please install it to connect your wallet.");
+
+                    const ethWei = web3.utils.toWei(ethAmount.toString(), "ether");
+
+                    await presaleContract.methods.buyTokens().send({
+                        from: accounts[0],
+                        value: ethWei
+                    });
+
+                    alert("✅ Покупката е успешна!");
+                    document.getElementById("buyModal").style.display = "none"; // Затваряне на модалния прозорец
+                } catch (error) {
+                    alert("❌ Грешка при покупката: " + error.message);
                 }
-            });
-
-            checkBalanceButton.addEventListener("click", async function () {
-                if (typeof window.ethereum !== "undefined") {
-                    try {
-                        const web3 = new Web3(window.ethereum);
-                        const accounts = await ethereum.request({ method: "eth_requestAccounts" });
-                        const tokenContract = new web3.eth.Contract(
-                            [{"constant": true, "inputs": [{"name": "owner", "type": "address"}], "name": "balanceOf", "outputs": [{"name": "balance", "type": "uint256"}], "type": "function"}], 
-                            "0x7e3Ec9F4b530b1BB6143EE3D4B6d218610D3F76D"
-                        );
-                        const balance = await tokenContract.methods.balanceOf(accounts[0]).call();
-                        alert(`Your $W3LABS Balance: ${web3.utils.fromWei(balance, "ether")} tokens`);
-                    } catch (error) {
-                        alert("Balance check failed: " + error.message);
-                    }
-                } else {
-                    alert("MetaMask is not installed.");
-                }
-            });
-
-            buyNowButton.addEventListener("click", function () {
-                modal.style.display = "flex";
-            });
-
-            document.querySelector(".close").addEventListener("click", function () {
-                modal.style.display = "none";
-            });
-
-            window.onclick = function (event) {
-                if (event.target === modal) {
-                    modal.style.display = "none";
-                }
-            };
-
-            function calculateTokens() {
-                const ethAmountInput = document.getElementById("ethAmountModal").value;
-                const tokenDisplay = document.getElementById("tokenAmountModal");
-                const tokensPerEth = 1000000;
-                const tokenAmount = parseFloat(ethAmountInput) * tokensPerEth;
-                tokenDisplay.innerText = `You will receive: ${tokenAmount.toLocaleString()} $W3LABS`;
+            } else {
+                alert("❌ MetaMask не е инсталиран.");
             }
-
-            document.getElementById("ethAmountModal").addEventListener("input", calculateTokens);
         });
     </script>
 </body>
