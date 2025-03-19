@@ -59,8 +59,15 @@ async function getTokenBalance() {
     }
     const web3 = new Web3(window.ethereum);
     const contract = new web3.eth.Contract(tokenABI, tokenAddress);
+
     try {
         const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+
+        if (!accounts || accounts.length === 0) {
+            alert("No wallet connected!");
+            return;
+        }
+
         const balance = await contract.methods.balanceOf(accounts[0]).call();
         const tokenBalance = web3.utils.fromWei(balance, 'ether');
         alert(`Your $W3LABS Balance: ${tokenBalance} tokens`);
@@ -141,6 +148,12 @@ async function buyTokens() {
 
         // ✅ Поправена проверка на баланса след покупката
         const tokenContract = new web3.eth.Contract(tokenABI, tokenAddress);
+
+        if (!accounts || accounts.length === 0) {
+            alert("No wallet connected!");
+            return;
+        }
+
         const newBalance = await tokenContract.methods.balanceOf(accounts[0]).call();
         const newTokenBalance = web3.utils.fromWei(newBalance, 'ether');
         alert(`Your updated $W3LABS Balance: ${newTokenBalance} tokens`);
